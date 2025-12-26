@@ -1,5 +1,6 @@
 services:
   web:
+    image: python:3.11-slim
     container_name: jurpodbor_backend
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
