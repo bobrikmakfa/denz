@@ -19,6 +19,7 @@ services:
       POSTGRES_DB: jurpodbor
       POSTGRES_USER: jurpodbor_user
       POSTGRES_PASSWORD: jurpodbor_pass
+      DATABASE_URL: jurpodbor_url
     ports:
       - "5437:5432"
     volumes:
@@ -27,8 +28,8 @@ services:
   mongo:
     image: mongo:6
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-mongo}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-mongo}
+      MONGO_INITDB_ROOT_USERNAME: jurpodbor_user
+      MONGO_INITDB_ROOT_PASSWORD: jurpodbor_password
     volumes:
       - mongodata:/data/db
     ports:
@@ -67,8 +68,8 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+      RABBITMQ_DEFAULT_USER: jurpodbor_user
+      RABBITMQ_DEFAULT_PASS: jurpodbor_password
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -78,8 +79,8 @@ services:
   minio:
     image: minio/minio:latest
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_ROOT_USER: jurpodbor_user
+      MINIO_ROOT_PASSWORD: jurpodbor_password
     command: server /data --console-address ":9001"
     ports:
       - "9000:9000"
@@ -93,28 +94,6 @@ services:
     image: mailhog/mailhog
     ports:
       - "8025:8025"
-    networks:
-      - backend
-
-  profiles:
-    build:
-      context: ./services/profiles
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - PORT=5000
-      - MINIO_ENDPOINT=minio
-      - MINIO_PORT=9000
-      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
-      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
-      - MINIO_BUCKET=profiles
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-      - NODE_ENV=development
-    depends_on:
-      - postgres
-      - rabbitmq
-      - minio
-    ports:
-      - "5000:5000"
     networks:
       - backend
 
